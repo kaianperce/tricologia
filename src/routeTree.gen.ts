@@ -14,7 +14,10 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiAnamnesisAnalysisRouteImport } from './routes/api/anamnesis-analysis'
+import { Route as ApiProtocolSuggestionRouteImport } from './routes/api/protocol-suggestion'
+import { Route as ApiSessionSummaryRouteImport } from './routes/api/session-summary'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/app/route'
+import { Route as AuthenticatedAppProtocolosIndexRouteImport } from './routes/_authenticated/app/protocolos/index'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
 import { Route as AuthenticatedAppProdutosIndexRouteImport } from './routes/_authenticated/app/produtos/index'
 import { Route as AuthenticatedAppProcedimentosIndexRouteImport } from './routes/_authenticated/app/procedimentos/index'
@@ -47,6 +50,16 @@ const ApiAnamnesisAnalysisRoute = ApiAnamnesisAnalysisRouteImport.update({
   path: '/api/anamnesis-analysis',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProtocolSuggestionRoute = ApiProtocolSuggestionRouteImport.update({
+  id: '/api/protocol-suggestion',
+  path: '/api/protocol-suggestion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSessionSummaryRoute = ApiSessionSummaryRouteImport.update({
+  id: '/api/session-summary',
+  path: '/api/session-summary',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppRouteRoute = AuthenticatedAppRouteRouteImport.update({
   id: '/app',
   path: '/app',
@@ -61,6 +74,12 @@ const AuthenticatedAppProdutosIndexRoute =
   AuthenticatedAppProdutosIndexRouteImport.update({
     id: '/produtos/',
     path: '/produtos/',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppProtocolosIndexRoute =
+  AuthenticatedAppProtocolosIndexRouteImport.update({
+    id: '/protocolos/',
+    path: '/protocolos/',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
 const AuthenticatedAppProcedimentosIndexRoute =
@@ -188,6 +207,8 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ApiAnamnesisAnalysisRoute: typeof ApiAnamnesisAnalysisRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiProtocolSuggestionRoute: typeof ApiProtocolSuggestionRoute
+  ApiSessionSummaryRoute: typeof ApiSessionSummaryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -294,6 +315,7 @@ interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppClinicaIndexRoute: typeof AuthenticatedAppClinicaIndexRoute
   AuthenticatedAppProcedimentosIndexRoute: typeof AuthenticatedAppProcedimentosIndexRoute
   AuthenticatedAppProdutosIndexRoute: typeof AuthenticatedAppProdutosIndexRoute
+  AuthenticatedAppProtocolosIndexRoute: typeof AuthenticatedAppProtocolosIndexRoute
 }
 
 const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
@@ -305,6 +327,7 @@ const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
   AuthenticatedAppProcedimentosIndexRoute:
     AuthenticatedAppProcedimentosIndexRoute,
   AuthenticatedAppProdutosIndexRoute: AuthenticatedAppProdutosIndexRoute,
+  AuthenticatedAppProtocolosIndexRoute: AuthenticatedAppProtocolosIndexRoute,
 }
 
 const AuthenticatedAppRouteRouteWithChildren =
@@ -329,6 +352,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ApiAnamnesisAnalysisRoute: ApiAnamnesisAnalysisRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiProtocolSuggestionRoute: ApiProtocolSuggestionRoute,
+  ApiSessionSummaryRoute: ApiSessionSummaryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
