@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Briefcase,
   Package,
+  ListChecks,
   Building2,
   LogOut,
   Sparkles,
@@ -64,6 +65,7 @@ function AppShell() {
     { to: "/app/anamneses", label: "Anamneses", icon: ClipboardList },
     { to: "/app/procedimentos", label: "Procedimentos", icon: Briefcase },
     { to: "/app/produtos", label: "Produtos", icon: Package },
+    { to: "/app/protocolos", label: "Protocolos", icon: ListChecks },
     { to: "/app/clinica", label: "Clínica", icon: Building2 },
   ];
 
