@@ -71,7 +71,10 @@ export function AnamnesisPrintView({
         <h2>Queda</h2>
         <div className="row"><b>Percebeu queda</b><span>{yn(data.percebeu_queda)}</span></div>
         <div className="row"><b>Há quanto tempo</b><span>{txt(data.queda_tempo)}</span></div>
-        <div className="row"><b>Queda intermitente</b><span>{yn(data.queda_intermitente)}</span></div>
+        <div className="row"><b>Evolução</b><span>{txt(data.queda_evolucao)}</span></div>
+        <div className="row"><b>Distribuição</b><span>{list(data.queda_distribuicao)}</span></div>
+        <div className="row"><b>Escala de padrão</b><span>{txt(data.escala_padrao)}</span></div>
+        <div className="row"><b>Teste de tração</b><span>{txt(data.pull_test)}{data.pull_test_fios != null ? ` · ${data.pull_test_fios} fios` : ""}</span></div>
         <div className="row"><b>Perda em outras partes</b><span>{yn(data.perda_outras_partes)} {data.perda_outras_partes_onde ? `· ${data.perda_outras_partes_onde}` : ""}</span></div>
         <div className="row"><b>Eventos marcantes (3m)</b><span>{yn(data.eventos_marcantes_3m)} {data.eventos_descricao ? `· ${data.eventos_descricao}` : ""}</span></div>
         <div className="row"><b>Característica</b><span>
@@ -85,10 +88,13 @@ export function AnamnesisPrintView({
 
         <h2>Couro cabeludo</h2>
         <div className="row"><b>Sintomas</b><span>{list(data.couro_sintomas)}</span></div>
+        <div className="row"><b>Oleosidade</b><span>{data.couro_oleosidade != null ? `${data.couro_oleosidade}/10` : "—"}</span></div>
+        <div className="row"><b>Descamação</b><span>{txt(data.descamacao_tipo)}</span></div>
         <div className="row"><b>Observações</b><span>{txt(data.couro_observacoes)}</span></div>
 
         <h2>Fios e haste</h2>
-        <div className="row"><b>Achados</b><span>{list(data.fios_sintomas)}</span></div>
+        <div className="row"><b>Curvatura / espessura / densidade</b><span>{[data.curvatura, data.espessura, data.densidade_percebida].filter(Boolean).join(" · ") || "—"}</span></div>
+        <div className="row"><b>Qualidade da fibra</b><span>{list(data.fios_sintomas)}</span></div>
 
         <h2>Hábitos capilares</h2>
         <div className="row"><b>Tipo de cabelo</b><span>{txt(data.tipo_cabelo)}</span></div>
@@ -106,7 +112,7 @@ export function AnamnesisPrintView({
         <div className="row"><b>Uso contínuo</b><span>{yn(data.medicamento_continuo)} {data.medicamento_continuo_desc ? `· ${data.medicamento_continuo_desc}` : ""}</span></div>
         <div className="row"><b>Suplementos</b><span>{txt(data.suplementos)}</span></div>
         <div className="row"><b>Alergias</b><span>{txt(data.alergias)}</span></div>
-        <div className="row"><b>Histórico familiar de calvície</b><span>{yn(data.historico_familiar)}</span></div>
+        <div className="row"><b>Histórico familiar de calvície</b><span>{yn(data.historico_familiar)} {data.historico_familiar_lado ? `· lado ${data.historico_familiar_lado}` : ""} {data.historico_familiar_idade ? `· ${data.historico_familiar_idade}` : ""}</span></div>
 
         <h2>Alimentação, hormonal, sono e emocional</h2>
         <div className="row"><b>Alimentação</b><span>{txt(data.alimentacao)}</span></div>
@@ -114,6 +120,7 @@ export function AnamnesisPrintView({
         <div className="row"><b>Desregulação hormonal</b><span>{yn(data.desregulacao_hormonal)}</span></div>
         <div className="row"><b>Anticoncepcional / DIU</b><span>{yn(data.anticoncepcional_diu)} {data.anticoncepcional_desc ? `· ${data.anticoncepcional_desc}` : ""}</span></div>
         <div className="row"><b>Gestante / lactante</b><span>{yn(data.gestante_lactante)}</span></div>
+        <div className="row"><b>Menopausa / climatério</b><span>{yn(data.menopausa)}</span></div>
         <div className="row"><b>Fuma / álcool</b><span>{yn(data.fuma)} / {yn(data.alcool)}</span></div>
         <div className="row"><b>Atividade física</b><span>{txt(data.atividade_fisica)}</span></div>
         <div className="row"><b>Sono</b><span>{txt(data.horas_sono)}h · {txt(data.qualidade_sono)}</span></div>
@@ -122,6 +129,16 @@ export function AnamnesisPrintView({
           {[data.ansiosa_estressada && "ansiosa/estressada", data.depressiva && "depressiva"].filter(Boolean).join(" · ") || "—"}
           {data.estresse_nivel != null ? ` · estresse ${data.estresse_nivel}/10` : ""}
         </span></div>
+
+        <h2>Exames laboratoriais</h2>
+        {(data.labs ?? []).length ? (
+          (data.labs ?? []).map((l, i) => (
+            <div className="row" key={i}><b>{txt(l.nome)}</b><span>{txt(l.valor)} {l.unidade ?? ""} {l.data ? `· ${l.data}` : ""}</span></div>
+          ))
+        ) : (
+          <div className="row"><b>Exames</b><span>—</span></div>
+        )}
+        <div className="row"><b>Observações</b><span>{txt(data.exames_observacoes)}</span></div>
 
         <h2>Tratamentos / diagnósticos anteriores</h2>
         <div className="row"><b>Tratamentos prévios</b><span>{txt(data.tratamentos_anteriores)}</span></div>

@@ -9,10 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import {
-  ANAMNESIS_STEPS, QUEIXAS_OPTIONS, COURO_SINTOMAS, FIOS_SINTOMAS, DOENCAS_OPTIONS,
-  isStepFilled, type AnamnesisData,
+  ANAMNESIS_STEPS, QUEIXA_DOMINIOS, QUEDA_EVOLUCAO, QUEDA_DISTRIBUICAO, PULL_TEST,
+  COURO_SINTOMAS, DESCAMACAO_TIPO, FIOS_SINTOMAS, CURVATURA, ESPESSURA, DENSIDADE,
+  DOENCAS_OPTIONS, FAMILIAR_LADO, LAB_PRESETS, scaleForSex,
+  isStepFilled, type AnamnesisData, type Lab,
 } from "@/lib/anamnesis-schema";
-import { Sparkles, Loader2, Printer, CheckCircle2, Circle } from "lucide-react";
+import { Sparkles, Loader2, Printer, CheckCircle2, Circle, Plus, X, FlaskConical } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { AI_DISCLAIMER } from "@/lib/ai-disclaimer";
@@ -93,7 +95,7 @@ export function AnamnesisWizard({ patient }: { patient: any }) {
       const res = await fetch("/api/anamnesis-analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patientName: patient.full_name, data }),
+        body: JSON.stringify({ patientName: patient.full_name, patientSex: patient.sex, birthDate: patient.birth_date, data }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Erro");
@@ -109,21 +111,18 @@ export function AnamnesisWizard({ patient }: { patient: any }) {
     if (!record) return;
     setAnalyzing(true);
     try {
-      // 1) Marca como concluída
       await supabase.from("anamneses").update({ data, completed: true, current_step: step } as any).eq("id", record.id);
 
-      // 2) Dispara IA para gerar o relatório final
       const res = await fetch("/api/anamnesis-analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patientName: patient.full_name, data }),
+        body: JSON.stringify({ patientName: patient.full_name, patientSex: patient.sex, birthDate: patient.birth_date, data }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Falha ao gerar relatório");
 
       await supabase.from("anamneses").update({ ai_analysis: json } as any).eq("id", record.id);
 
-      // 3) Salva no histórico de relatórios
       const { data: u } = await supabase.auth.getUser();
       await supabase.from("ai_reports").insert({
         clinic_id: patient.clinic_id,
@@ -151,6 +150,13 @@ export function AnamnesisWizard({ patient }: { patient: any }) {
   const meta = ANAMNESIS_STEPS.find((s) => s.id === step)!;
   const filledCount = ANAMNESIS_STEPS.filter((s) => isStepFilled(s.id, data)).length;
   const progress = (filledCount / ANAMNESIS_STEPS.length) * 100;
+  const scale = scaleForSex(patient.sex);
+
+  // Labs helpers
+  const labs: Lab[] = Array.isArray(data.labs) ? data.labs : [];
+  const setLabs = (next: Lab[]) => update({ labs: next });
+  const addLab = (nome: string) => setLabs([...labs, { nome, valor: "", unidade: "", data: "" }]);
+  const setLab = (i: number, patch: Partial<Lab>) => setLabs(labs.map((l, idx) => (idx === i ? { ...l, ...patch } : l)));
 
   return (
     <div className="grid gap-4 lg:grid-cols-[220px_1fr_340px]">
@@ -207,62 +213,101 @@ export function AnamnesisWizard({ patient }: { patient: any }) {
           </div>
 
           <div className="mt-2 space-y-5">
+            {/* ETAPA 1 — Queixa & queda */}
             {step === 1 && (
               <>
                 <div>
-                  <Label>Queixa principal (marque tudo o que se aplica)</Label>
-                  <ChipGrid options={QUEIXAS_OPTIONS} selected={data.queixa_principal ?? []} onToggle={(v) => toggle("queixa_principal", v)} />
+                  <Label>O que traz o cliente (marque os domínios)</Label>
+                  <ChipGrid options={QUEIXA_DOMINIOS} selected={data.queixa_principal ?? []} onToggle={(v) => toggle("queixa_principal", v)} />
+                  <p className="mt-1 text-[11px] text-muted-foreground">Os sintomas específicos são detalhados nas próximas etapas — aqui é só o motivo geral.</p>
                 </div>
                 <div>
-                  <Label>Descreva com detalhes</Label>
-                  <Textarea rows={4} value={data.queixa_descricao ?? ""} onChange={(e) => update({ queixa_descricao: e.target.value })} />
+                  <Label>Descreva a queixa com detalhes</Label>
+                  <Textarea rows={3} value={data.queixa_descricao ?? ""} onChange={(e) => update({ queixa_descricao: e.target.value })} />
                 </div>
-              </>
-            )}
 
-            {step === 2 && (
-              <>
-                <div className="grid grid-cols-2 gap-3">
-                  <SwitchRow label="Percebeu queda" v={!!data.percebeu_queda} on={(v) => update({ percebeu_queda: v })} />
-                  <div><Label>Há quanto tempo?</Label><Input value={data.queda_tempo ?? ""} onChange={(e) => update({ queda_tempo: e.target.value })} /></div>
-                </div>
-                <SwitchRow label="Houve períodos em que a queda parou e voltou (intermitente)" v={!!data.queda_intermitente} on={(v) => update({ queda_intermitente: v })} />
-                <div className="grid grid-cols-2 gap-3">
-                  <SwitchRow label="Perda de pelos em outras partes do corpo" v={!!data.perda_outras_partes} on={(v) => update({ perda_outras_partes: v })} />
-                  {data.perda_outras_partes && (
-                    <div><Label>Onde?</Label><Input value={data.perda_outras_partes_onde ?? ""} onChange={(e) => update({ perda_outras_partes_onde: e.target.value })} /></div>
+                <div className="rounded-lg border bg-muted/30 p-3 space-y-4">
+                  <div className="text-sm font-medium">Caracterização da queda</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <SwitchRow label="Percebe queda" v={!!data.percebeu_queda} on={(v) => update({ percebeu_queda: v })} />
+                    <div><Label>Há quanto tempo?</Label><Input value={data.queda_tempo ?? ""} onChange={(e) => update({ queda_tempo: e.target.value })} placeholder="ex.: 6 meses" /></div>
+                  </div>
+                  {data.percebeu_queda && (
+                    <>
+                      <div>
+                        <Label>Evolução</Label>
+                        <RadioChips options={QUEDA_EVOLUCAO} value={data.queda_evolucao} onSelect={(v) => update({ queda_evolucao: v })} />
+                      </div>
+                      <div>
+                        <Label>Distribuição (onde cai mais)</Label>
+                        <ChipGrid options={QUEDA_DISTRIBUICAO} selected={data.queda_distribuicao ?? []} onToggle={(v) => toggle("queda_distribuicao", v)} />
+                      </div>
+                      <div>
+                        <Label>{scale.label}</Label>
+                        <RadioChips options={scale.options} value={data.escala_padrao} onSelect={(v) => update({ escala_padrao: v })} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <SwitchRow label="Queda com bulbo (raiz)" v={!!data.queda_com_bulbo} on={(v) => update({ queda_com_bulbo: v })} />
+                        <SwitchRow label="Queda por quebra" v={!!data.queda_por_quebra} on={(v) => update({ queda_por_quebra: v })} />
+                      </div>
+                      <SwitchRow label="Perda de pelos em outras partes do corpo" v={!!data.perda_outras_partes} on={(v) => update({ perda_outras_partes: v })} />
+                      {data.perda_outras_partes && (
+                        <div><Label>Onde?</Label><Input value={data.perda_outras_partes_onde ?? ""} onChange={(e) => update({ perda_outras_partes_onde: e.target.value })} /></div>
+                      )}
+                    </>
+                  )}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <Label>Teste de tração (pull test)</Label>
+                      <RadioChips options={PULL_TEST} value={data.pull_test} onSelect={(v) => update({ pull_test: v })} />
+                    </div>
+                    {data.pull_test && data.pull_test !== "Não realizado" && (
+                      <div><Label>Nº de fios destacados</Label><Input type="number" value={data.pull_test_fios ?? ""} onChange={(e) => update({ pull_test_fios: e.target.value === "" ? undefined : Number(e.target.value) })} /></div>
+                    )}
+                  </div>
+                  <SwitchRow label="Acontecimento marcante nos últimos ~3 meses (cirurgia, COVID, parto, estresse intenso, emagrecimento)" v={!!data.eventos_marcantes_3m} on={(v) => update({ eventos_marcantes_3m: v })} />
+                  {data.eventos_marcantes_3m && (
+                    <div><Label>Descreva o evento</Label><Textarea rows={2} value={data.eventos_descricao ?? ""} onChange={(e) => update({ eventos_descricao: e.target.value })} /></div>
                   )}
                 </div>
-                <SwitchRow label="Acontecimento marcante há ~3 meses" v={!!data.eventos_marcantes_3m} on={(v) => update({ eventos_marcantes_3m: v })} />
-                <div>
-                  <Label>Descreva o evento (cirurgia, COVID, estresse intenso, parto, emagrecimento, etc.)</Label>
-                  <Textarea rows={3} value={data.eventos_descricao ?? ""} onChange={(e) => update({ eventos_descricao: e.target.value })} />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <SwitchRow label="Queda aumentada no banho" v={!!data.queda_no_banho} on={(v) => update({ queda_no_banho: v })} />
-                  <SwitchRow label="Queda ao pentear" v={!!data.queda_ao_pentear} on={(v) => update({ queda_ao_pentear: v })} />
-                  <SwitchRow label="Queda com bulbo (raiz)" v={!!data.queda_com_bulbo} on={(v) => update({ queda_com_bulbo: v })} />
-                  <SwitchRow label="Queda por quebra" v={!!data.queda_por_quebra} on={(v) => update({ queda_por_quebra: v })} />
-                </div>
               </>
             )}
 
-            {step === 3 && (
+            {/* ETAPA 2 — Couro cabeludo */}
+            {step === 2 && (
               <>
                 <Label>Sintomas no couro cabeludo</Label>
                 <ChipGrid options={COURO_SINTOMAS} selected={data.couro_sintomas ?? []} onToggle={(v) => toggle("couro_sintomas", v)} />
-                <div><Label>Observações</Label><Textarea rows={3} value={data.couro_observacoes ?? ""} onChange={(e) => update({ couro_observacoes: e.target.value })} /></div>
+                <div>
+                  <Label>Oleosidade do couro: {data.couro_oleosidade ?? 0}/10</Label>
+                  <Slider value={[data.couro_oleosidade ?? 0]} max={10} step={1} onValueChange={(v) => update({ couro_oleosidade: v[0] })} />
+                  <div className="flex justify-between text-[10px] text-muted-foreground"><span>Seco</span><span>Muito oleoso</span></div>
+                </div>
+                <div>
+                  <Label>Descamação / caspa</Label>
+                  <RadioChips options={DESCAMACAO_TIPO} value={data.descamacao_tipo} onSelect={(v) => update({ descamacao_tipo: v })} />
+                </div>
+                <div><Label>Observações do couro</Label><Textarea rows={3} value={data.couro_observacoes ?? ""} onChange={(e) => update({ couro_observacoes: e.target.value })} /></div>
               </>
             )}
 
-            {step === 4 && (
+            {/* ETAPA 3 — Fios e haste */}
+            {step === 3 && (
               <>
-                <Label>Características dos fios</Label>
-                <ChipGrid options={FIOS_SINTOMAS} selected={data.fios_sintomas ?? []} onToggle={(v) => toggle("fios_sintomas", v)} />
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div><Label>Curvatura</Label><RadioChips options={CURVATURA} value={data.curvatura} onSelect={(v) => update({ curvatura: v })} /></div>
+                  <div><Label>Espessura do fio</Label><RadioChips options={ESPESSURA} value={data.espessura} onSelect={(v) => update({ espessura: v })} /></div>
+                  <div><Label>Densidade percebida</Label><RadioChips options={DENSIDADE} value={data.densidade_percebida} onSelect={(v) => update({ densidade_percebida: v })} /></div>
+                </div>
+                <div>
+                  <Label>Qualidade da fibra</Label>
+                  <ChipGrid options={FIOS_SINTOMAS} selected={data.fios_sintomas ?? []} onToggle={(v) => toggle("fios_sintomas", v)} />
+                </div>
               </>
             )}
 
-            {step === 5 && (
+            {/* ETAPA 4 — Rotina e agressões */}
+            {step === 4 && (
               <>
                 <div className="grid grid-cols-2 gap-3">
                   <div><Label>Tipo de cabelo</Label><Input placeholder="seco · oleoso · normal · misto" value={data.tipo_cabelo ?? ""} onChange={(e) => update({ tipo_cabelo: e.target.value })} /></div>
@@ -291,7 +336,8 @@ export function AnamnesisWizard({ patient }: { patient: any }) {
               </>
             )}
 
-            {step === 6 && (
+            {/* ETAPA 5 — Histórico de saúde */}
+            {step === 5 && (
               <>
                 <Label>Doenças relevantes</Label>
                 <ChipGrid options={DOENCAS_OPTIONS} selected={data.doencas ?? []} onToggle={(v) => toggle("doencas", v)} />
@@ -300,16 +346,25 @@ export function AnamnesisWizard({ patient }: { patient: any }) {
                   <div><Label>Medicamentos atuais</Label><Textarea rows={2} value={data.medicamentos_atuais ?? ""} onChange={(e) => update({ medicamentos_atuais: e.target.value })} /></div>
                   <div><Label>Suplementos</Label><Textarea rows={2} value={data.suplementos ?? ""} onChange={(e) => update({ suplementos: e.target.value })} /></div>
                 </div>
-                <SwitchRow label="Algum é de uso contínuo" v={!!data.medicamento_continuo} on={(v) => update({ medicamento_continuo: v })} />
+                <SwitchRow label="Algum medicamento de uso contínuo" v={!!data.medicamento_continuo} on={(v) => update({ medicamento_continuo: v })} />
                 {data.medicamento_continuo && (
                   <div><Label>Quais e há quanto tempo?</Label><Input value={data.medicamento_continuo_desc ?? ""} onChange={(e) => update({ medicamento_continuo_desc: e.target.value })} /></div>
                 )}
                 <div><Label>Alergias</Label><Input value={data.alergias ?? ""} onChange={(e) => update({ alergias: e.target.value })} /></div>
-                <SwitchRow label="Histórico familiar de calvície (pais ou avós)" v={!!data.historico_familiar} on={(v) => update({ historico_familiar: v })} />
+                <div className="rounded-lg border bg-muted/30 p-3 space-y-3">
+                  <SwitchRow label="Histórico familiar de calvície" v={!!data.historico_familiar} on={(v) => update({ historico_familiar: v })} />
+                  {data.historico_familiar && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div><Label>Lado da família</Label><RadioChips options={FAMILIAR_LADO} value={data.historico_familiar_lado} onSelect={(v) => update({ historico_familiar_lado: v })} /></div>
+                      <div><Label>Idade de início na família</Label><Input value={data.historico_familiar_idade ?? ""} onChange={(e) => update({ historico_familiar_idade: e.target.value })} placeholder="ex.: pai aos 30" /></div>
+                    </div>
+                  )}
+                </div>
               </>
             )}
 
-            {step === 7 && (
+            {/* ETAPA 6 — Estilo de vida e hormonal */}
+            {step === 6 && (
               <>
                 <div><Label>Hábitos alimentares</Label><Textarea rows={3} value={data.alimentacao ?? ""} onChange={(e) => update({ alimentacao: e.target.value })} /></div>
                 <div className="grid grid-cols-2 gap-3">
@@ -322,7 +377,10 @@ export function AnamnesisWizard({ patient }: { patient: any }) {
                     <div><Label>Qual e há quanto tempo?</Label><Input value={data.anticoncepcional_desc ?? ""} onChange={(e) => update({ anticoncepcional_desc: e.target.value })} /></div>
                   )}
                 </div>
-                <SwitchRow label="Gestante ou lactante" v={!!data.gestante_lactante} on={(v) => update({ gestante_lactante: v })} />
+                <div className="grid grid-cols-2 gap-3">
+                  <SwitchRow label="Gestante ou lactante" v={!!data.gestante_lactante} on={(v) => update({ gestante_lactante: v })} />
+                  <SwitchRow label="Menopausa / climatério" v={!!data.menopausa} on={(v) => update({ menopausa: v })} />
+                </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div><Label>Horas de sono/noite</Label><Input type="number" value={data.horas_sono ?? ""} onChange={(e) => update({ horas_sono: Number(e.target.value) })} /></div>
                   <div><Label>Qualidade do sono</Label><Input placeholder="boa · regular · ruim" value={data.qualidade_sono ?? ""} onChange={(e) => update({ qualidade_sono: e.target.value })} /></div>
@@ -344,6 +402,42 @@ export function AnamnesisWizard({ patient }: { patient: any }) {
               </>
             )}
 
+            {/* ETAPA 7 — Exames laboratoriais */}
+            {step === 7 && (
+              <>
+                <div className="flex items-center gap-2">
+                  <FlaskConical className="h-4 w-4 text-primary" />
+                  <Label>Exames laboratoriais</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Registre os valores com data. Dados estruturados deixam a análise da IA muito mais precisa (ex.: ferritina baixa reforça hipótese de eflúvio).
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {LAB_PRESETS.map((preset) => (
+                    <button key={preset} type="button" onClick={() => addLab(preset)}
+                      className="rounded-full border bg-card px-3 py-1 text-xs hover:bg-muted/60">
+                      <Plus className="mr-1 inline h-3 w-3" />{preset}
+                    </button>
+                  ))}
+                </div>
+                {labs.length > 0 && (
+                  <div className="space-y-2">
+                    {labs.map((l, i) => (
+                      <div key={i} className="flex flex-wrap items-end gap-2 rounded-lg border bg-card p-2">
+                        <div className="min-w-[8rem] flex-1"><Label className="text-[11px]">Exame</Label><Input className="h-8" value={l.nome} onChange={(e) => setLab(i, { nome: e.target.value })} /></div>
+                        <div className="w-24"><Label className="text-[11px]">Valor</Label><Input className="h-8" value={l.valor} onChange={(e) => setLab(i, { valor: e.target.value })} /></div>
+                        <div className="w-24"><Label className="text-[11px]">Unidade</Label><Input className="h-8" value={l.unidade ?? ""} onChange={(e) => setLab(i, { unidade: e.target.value })} placeholder="ng/mL" /></div>
+                        <div className="w-32"><Label className="text-[11px]">Data</Label><Input className="h-8" type="date" value={l.data ?? ""} onChange={(e) => setLab(i, { data: e.target.value })} /></div>
+                        <Button type="button" size="icon" variant="ghost" className="h-8 w-8" onClick={() => setLabs(labs.filter((_, idx) => idx !== i))}><X className="h-4 w-4" /></Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div><Label>Observações dos exames</Label><Textarea rows={2} value={data.exames_observacoes ?? ""} onChange={(e) => update({ exames_observacoes: e.target.value })} placeholder="Ex.: aguardando resultado de tireoide" /></div>
+              </>
+            )}
+
+            {/* ETAPA 8 — Tratamentos & fechamento */}
             {step === 8 && (
               <>
                 <div><Label>Tratamentos capilares anteriores</Label><Textarea rows={3} value={data.tratamentos_anteriores ?? ""} onChange={(e) => update({ tratamentos_anteriores: e.target.value })} /></div>
@@ -363,11 +457,13 @@ export function AnamnesisWizard({ patient }: { patient: any }) {
                 <div className="rounded-lg border bg-muted/40 p-4">
                   <h4 className="text-sm font-medium">Resumo rápido</h4>
                   <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                    <li>• Queixas: {(data.queixa_principal ?? []).join(", ") || "—"}</li>
-                    <li>• Tempo de queda: {data.queda_tempo || "—"}</li>
-                    <li>• Sintomas couro: {(data.couro_sintomas ?? []).slice(0, 4).join(", ") || "—"}</li>
-                    <li>• Doenças: {(data.doencas ?? []).join(", ") || "—"}</li>
-                    <li>• Gestante/lactante: {data.gestante_lactante ? "Sim" : "Não"} · Marcapasso: {data.marcapasso ? "Sim" : "Não"}</li>
+                    <li>• Queixa: {(data.queixa_principal ?? []).join(", ") || "—"}</li>
+                    <li>• Queda: {data.queda_tempo || "—"} · {data.queda_evolucao || "—"} · {data.escala_padrao?.split(" — ")[0] || "sem escala"}</li>
+                    <li>• Pull test: {data.pull_test || "—"}</li>
+                    <li>• Couro: {(data.couro_sintomas ?? []).slice(0, 4).join(", ") || "—"} · descamação {data.descamacao_tipo || "—"}</li>
+                    <li>• Fio: {[data.curvatura, data.espessura, data.densidade_percebida].filter(Boolean).join(" · ") || "—"}</li>
+                    <li>• Exames: {(data.labs ?? []).length} registrado(s)</li>
+                    <li>• Alerta: {[data.gestante_lactante && "gestante/lactante", data.marcapasso && "marcapasso", (data.doencas ?? []).includes("Doenças autoimunes") && "autoimune"].filter(Boolean).join(" · ") || "nenhum sinalizado"}</li>
                     <li>• Anexos: {(data.attachments ?? []).length} arquivo(s)</li>
                   </ul>
                 </div>
@@ -447,7 +543,7 @@ export function AnamnesisWizard({ patient }: { patient: any }) {
 
 function SwitchRow({ label, v, on }: { label: string; v: boolean; on: (b: boolean) => void }) {
   return (
-    <label className="flex items-center justify-between rounded-lg border bg-card px-3 py-2 text-sm">
+    <label className="flex items-center justify-between gap-2 rounded-lg border bg-card px-3 py-2 text-sm">
       <span>{label}</span>
       <Switch checked={v} onCheckedChange={on} />
     </label>
@@ -461,6 +557,23 @@ function ChipGrid({ options, selected, onToggle }: { options: string[]; selected
         const active = selected.includes(opt);
         return (
           <button key={opt} type="button" onClick={() => onToggle(opt)}
+            className={`rounded-full border px-3 py-1 text-xs ${active ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted/60"}`}>
+            {opt}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Seleção única (radio em forma de chip). Clicar de novo desmarca. */
+function RadioChips({ options, value, onSelect }: { options: string[]; value?: string; onSelect: (v: string | undefined) => void }) {
+  return (
+    <div className="mt-2 flex flex-wrap gap-2">
+      {options.map((opt) => {
+        const active = value === opt;
+        return (
+          <button key={opt} type="button" onClick={() => onSelect(active ? undefined : opt)}
             className={`rounded-full border px-3 py-1 text-xs ${active ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted/60"}`}>
             {opt}
           </button>
