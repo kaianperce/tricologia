@@ -2,7 +2,7 @@
   "mcpServers": {
     "meta-ads": {
       "type": "http",
-      "url": "https://meta-ads.mcp.pipeboard.co/"
+      "url": "https://mcp.facebook.com/ads"
     }
   }
 }
