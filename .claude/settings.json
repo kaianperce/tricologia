@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Higgsfield",
+      "Bash(sleep *)",
+      "Bash(curl -sS -o *)"
+    ]
+  }
+}
