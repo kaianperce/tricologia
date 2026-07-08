@@ -1,0 +1,29 @@
+# Configuração de inferência (pipeline)
+# Valores aqui são defaults; flags de CLI do pipeline.py têm precedência.
+
+weights: yolo11n.pt        # troque por runs/detect/train/weights/best.pt após o fine-tune
+imgsz: 1280                # alta resolução ajuda alvo pequeno (custo: latência)
+conf: 0.25                 # limiar de confiança por detecção
+iou: 0.45                  # NMS IoU
+device: null               # null = auto (cuda se disponível), ou "cpu", "0", "0,1"
+
+# Classes de interesse (nomes conforme o dataset de treino).
+# No MVP: drone e bird explícitas — pássaro NÃO é fundo.
+classes: [drone, bird]
+
+# SAHI — inferência em tiles para alvos pequenos
+sahi:
+  enabled: false
+  tile_size: 640
+  overlap: 0.2             # sobreposição entre tiles (fração)
+
+# Tracking
+tracker:
+  min_hits: 3              # frames para confirmar um track (regra de confirmação usa alert.*)
+  max_age: 30              # frames sem detecção antes de encerrar o track
+  iou_threshold: 0.3       # associação (tracker IoU do modo SAHI)
+
+# Regra de confirmação de alerta (mata detecção-fantasma de 1 frame)
+alert:
+  min_track_frames: 8      # track precisa existir por N frames consecutivos
+  min_mean_conf: 0.35      # confiança média mínima no período

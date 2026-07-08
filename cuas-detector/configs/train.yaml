@@ -1,0 +1,24 @@
+# Configuração de treino (Fase 1 — fine-tune em dataset público)
+# Consumido por train/train.py; chaves extras são passadas direto ao Ultralytics.
+
+model: yolo11n.pt          # transfer learning a partir dos pesos COCO
+                           # upgrade p/ alvo pequeno: yolo11s.pt ou modelo com head P2
+data: data/dataset.yaml    # dataset em formato YOLO (ver data/datasets.md)
+
+epochs: 100
+patience: 20               # early stopping em mAP@0.5:0.95 do val
+batch: 16
+imgsz: 1280                # resolução alta no treino — crítico para alvo pequeno
+device: null               # null = auto
+
+# Augmentation — defaults da Ultralytics + ênfase em escala para alvos pequenos
+mosaic: 1.0
+scale: 0.9                 # augmentation de escala agressivo
+copy_paste: 0.3            # copy-paste de instâncias (drones pequenos em fundos variados)
+fliplr: 0.5
+hsv_h: 0.015
+hsv_s: 0.7
+hsv_v: 0.4
+
+project: runs/detect
+name: train

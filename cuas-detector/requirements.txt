@@ -1,0 +1,6 @@
+ultralytics>=8.3.0
+opencv-python>=4.9.0
+numpy>=1.26.0
+pyyaml>=6.0
+# SAHI é opcional (modo --sahi do pipeline); instale para alvos pequenos:
+sahi>=0.11.20

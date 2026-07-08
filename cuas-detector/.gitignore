@@ -1,0 +1,13 @@
+# pesos, runs e datasets não são versionados
+*.pt
+*.engine
+*.onnx
+runs/
+datasets/
+data/dataset.yaml
+*.mp4
+*.avi
+*.jsonl
+__pycache__/
+*.pyc
+.pytest_cache/
