@@ -42,9 +42,12 @@ Migração: `supabase/migrations/20260702120000_products_protocols_session_chart
 
 ## 🔜 Próximas fases (a visão completa)
 
-> **Ver também:** [`PLANO.md`](./PLANO.md) — plano detalhado da Biblioteca
-> Clínica de Tricologia (15 condições, 7 protocolos, 48+ fórmulas, exames,
-> triagem) e do grounding da IA nessa base, que antecipa parte da Fase 4.
+> **Ver também:** [`VISAO.md`](./VISAO.md) — visão-mestre do produto, que
+> **re-sequencia** estas fases (tricologia 100% → CRM/funis → agendamento →
+> inbox omnichannel → SaaS; o LMS passa para a última etapa) — e
+> [`PLANO.md`](./PLANO.md) — plano detalhado da Biblioteca Clínica de
+> Tricologia (15 condições, 7 protocolos, 48+ fórmulas, exames, triagem) e do
+> grounding da IA nessa base.
 
 ### Fase 2 — Plataforma de videoaulas (LMS)
 Cursos de tricologia, terapia capilar, técnicas de corte, tintura e luzes.
