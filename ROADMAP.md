@@ -42,6 +42,10 @@ Migração: `supabase/migrations/20260702120000_products_protocols_session_chart
 
 ## 🔜 Próximas fases (a visão completa)
 
+> **Ver também:** [`PLANO.md`](./PLANO.md) — plano detalhado da Biblioteca
+> Clínica de Tricologia (15 condições, 7 protocolos, 48+ fórmulas, exames,
+> triagem) e do grounding da IA nessa base, que antecipa parte da Fase 4.
+
 ### Fase 2 — Plataforma de videoaulas (LMS)
 Cursos de tricologia, terapia capilar, técnicas de corte, tintura e luzes.
 - Tabelas: `courses`, `modules`, `lessons` (vídeo + material), `enrollments`,
