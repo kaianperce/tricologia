@@ -28,16 +28,26 @@ curriculares (objetivos de aprendizagem, habilidades, eixos, descritores) — nu
 material instrucional ou formação docente, avise que está fora do escopo contratado
 antes de responder.
 
-**Valor do serviço (referência da proposta):**
+**Valor do serviço — escopo ampliado "olhar tudo" (referência da proposta):**
+
+Escopo contratado: varredura normativa completa BR + TCTs (15 temas / 6 macroáreas)
+cruzados com o currículo inteiro + benchmark internacional (OCDE, UNESCO, PISA,
+NGSS, UE) + matrizes de correspondência das 5 etapas com eixo transversal.
 
 | Item | Valor |
 |---|---|
-| Esforço estimado | 75–105 horas em 4 meses |
-| Taxa de referência (consultor sênior currículo/educação) | R$ 150–300/h |
-| Piso defensável | R$ 15.000 |
-| **Faixa-alvo da proposta** | **R$ 20.000–25.000** |
-| Teto com senioridade forte | R$ 30.000+ |
-| Se subcontratado por empresa (que põe margem ao SESI) | R$ 15.000–22.000 |
+| Esforço estimado | ~200 horas (175–220) em 4 meses |
+| Taxa horária (reduzida pelo volume) | R$ 125–140/h |
+| Piso defensável | R$ 22.000 (R$ 110/h — abaixo disso o volume vira prejuízo) |
+| **Faixa-alvo da proposta** | **R$ 25.000–28.000** |
+| Teto com senioridade forte | R$ 32.000 |
+| Se subcontratado por empresa (que põe margem ao SESI) | R$ 22.000–26.000 |
+
+Racional para negociação: o escopo dobra em cobertura, mas a taxa cai de
+R$ 200–250/h para R$ 125–140/h pelo volume — o total fica próximo do escopo base
+com o dobro de entrega. Proteção contra trabalho infinito: o esforço é delimitado
+pelo formato de saída fechado (matrizes + documento de 40–70 p. + quadro-síntese),
+não pela quantidade de leitura.
 
 Condições: preço fechado por produto; inclui até **2 ciclos de revisão** com a
 fiscalização (ciclos extras cobrados à parte); marcos M1–M4 como eventos de
@@ -53,14 +63,20 @@ Texto de delimitação para a proposta:
 
 ## 3. MÉTODO DE TRABALHO (5 PASSOS — SEGUIR SEMPRE)
 
-1. **Fontes** — analisar apenas documentos anexados a este Projeto: BNCC (EI, EF, EM),
-   Res. CNE/CEB 1/2021 (EJA), Marco Legal de CT&I (Lei 13.243/2016), Política Nacional
-   de IC (2025), matrizes curriculares SESI. Fichar cada um: o que *obriga*, *permite*, *sugere*.
+1. **Fontes** — analisar apenas documentos anexados a este Projeto. Núcleo: BNCC
+   (EI, EF, EM), Res. CNE/CEB 1/2021 (EJA), Marco Legal de CT&I (Lei 13.243/2016),
+   Política Nacional de IC (2025), matrizes curriculares SESI. Varredura ampliada:
+   LDB, PNE, DCNs, Lei 13.415/2017 e Lei 14.945/2024 (EM), complemento de Computação
+   à BNCC, Lei 14.533/2023, **Guia Prático dos TCTs (MEC)** e cadernos temáticos, e
+   benchmark internacional dirigido (OCDE Learning Compass, PISA, UNESCO/ODS 4,
+   NGSS, Recomendação UE 2018). Fichar cada um: o que *obriga*, *permite*, *sugere*.
+   Benchmark internacional fundamenta recomendação, nunca a substitui — toda
+   recomendação aterrissa em norma brasileira + matriz SESI.
 2. **Exigências** — transformar a Política de IC em lista numerada verificável
    (IC-01, IC-02...) com seção/página. Essa lista é o critério de toda a análise.
 3. **Matriz de correspondência por etapa** (EI, EF anos iniciais, EF anos finais, EM,
    EJA) — formato de linha:
-   `etapa_ano | eixo (ciencias/matematica/engenharia-tecnologia/transversal-ic) |
+   `etapa_ano | eixo (ciencias/matematica/engenharia-tecnologia/tct/transversal-ic) |
    ref_bncc | bncc_resumo | matriz_sesi | exigencia_ic | situacao
    (contemplado/parcial/lacuna) | recomendacao | prioridade (alta/media/baixa) | fonte`
    Toda lacuna/parcial exige recomendação e fonte. Recomendação = item de currículo
@@ -93,6 +109,14 @@ Texto de delimitação para a proposta:
   andragógica (Res. CNE/CEB 1/2021, que prevê EJA articulada à EPT — encaixe
   SESI/SENAI). Nunca propor currículo regular comprimido; desenho próprio, partindo
   da experiência de trabalho do estudante (TR: IC como vetor de empregabilidade).
+- **TCTs — Temas Contemporâneos Transversais**: 15 temas em 6 macroáreas (Meio
+  Ambiente, Economia, Saúde, Cidadania e Civismo, Multiculturalismo, **Ciência e
+  Tecnologia**), conforme Guia Prático do MEC. São o mecanismo OFICIAL de
+  transversalidade da BNCC e a via de integração da IC ao **currículo inteiro**
+  (não só Ciências/Matemática): cada TCT vira contexto legítimo de investigação
+  científica (ex.: consumo de energia = TCT Meio Ambiente + Matéria e Energia +
+  letramento em dados + contexto industrial). Nas matrizes, eixo `tct` = uma linha
+  por macroárea relevante em cada etapa, mapeando onde a IC se ancora.
 
 ## 5. ESTRUTURA DO DOCUMENTO FINAL (40–70 p.)
 
@@ -147,9 +171,14 @@ escopo para "como fazer" (reiterar delimitação).
 
 ## 9. DOCUMENTOS A ANEXAR A ESTE PROJETO (checklist)
 
-Públicos: BNCC homologada (basenacionalcomum.mec.gov.br) · Res. e Parecer CNE/CEB
-1/2021 (EJA) · Lei 13.243/2016 (Marco CT&I) · Res. CNE/CEB 5/2009 (DCN EI) ·
-Lei 13.415/2017 e Portaria MEC 1.432/2018 (itinerários).
+Públicos: BNCC homologada (basenacionalcomum.mec.gov.br) · Guia Prático dos TCTs
+(MEC) e cadernos temáticos por macroárea · Res. e Parecer CNE/CEB 1/2021 (EJA) ·
+Lei 13.243/2016 (Marco CT&I) · Res. CNE/CEB 5/2009 (DCN EI) · Lei 13.415/2017,
+Portaria MEC 1.432/2018 e Lei 14.945/2024 (EM/itinerários) · LDB 9.394/1996 ·
+PNE Lei 13.005/2014 · complemento de Computação à BNCC (CNE 2022) · Lei 14.533/2023
+(Educação Digital) · internacionais: OCDE Learning Compass 2030, framework PISA de
+letramento científico, UNESCO ODS 4, NGSS (práticas de ciência e engenharia), 
+Recomendação UE 2018 (competências-chave).
 Do SESI DN: Política Nacional de IC (2025) · matrizes curriculares de todas as
 etapas · matriz/proposta do Novo EM SESI · Produto 1 em elaboração · materiais da
 IC Júnior, Pré-Universitária e Aplicada · template institucional de documento.

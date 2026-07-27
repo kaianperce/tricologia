@@ -9,7 +9,7 @@ mostram o padrão de escrita e devem ser substituídas pelo levantamento real.
 | Coluna | Preenchimento |
 |---|---|
 | `etapa_ano` | Ex.: `EI-03 (4-5a)`, `EF-2º ano`, `EM-1ª série`, `EJA-EF-AF` |
-| `eixo` | `ciencias` / `matematica` / `engenharia-tecnologia` / `transversal-ic` |
+| `eixo` | `ciencias` / `matematica` / `engenharia-tecnologia` / `tct` / `transversal-ic` |
 | `ref_bncc` | Código ou nome (ex.: `EF02CI04`, `Campo: Espaços, tempos...`, `CNT competência 3`) |
 | `bncc_resumo` | Resumo de 1 linha do que a BNCC prevê |
 | `matriz_sesi` | O que a matriz SESI já contém no ponto correspondente (`—` se nada) |
@@ -28,6 +28,10 @@ mostram o padrão de escrita e devem ser substituídas pelo levantamento real.
    `media` = parcial ou exigência institucional SESI; `baixa` = oportunidade de melhoria.
 4. Ao final de cada etapa, criar as linhas de **transição** (eixo `transversal-ic`)
    verificando a ponte com a etapa seguinte.
+5. Eixo `tct`: uma linha por macroárea de TCT relevante na etapa (referência:
+   `00-fontes/panorama-normativo.md`, seção 3), mapeando onde a IC pode se ancorar
+   no currículo inteiro — em `ref_bncc`, indicar a macroárea/tema do TCT e o
+   componente/campo em que ele aparece na matriz SESI.
 
 ## Arquivos
 
